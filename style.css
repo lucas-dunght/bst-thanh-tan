@@ -110,8 +110,10 @@ body {
 }
 
 .story-content .bold-text {
+  font-family: 'Playfair Display', serif;
   font-weight: 600;
-  font-size: 2.5rem;
+  font-size: 2.8rem;
+  letter-spacing: 0.5px;
 }
 
 /* --- PRODUCTS SECTION --- */
@@ -122,10 +124,12 @@ body {
 }
 
 .section-title {
+  font-family: 'Playfair Display', serif;
   text-align: center;
-  font-size: 3rem;
+  font-size: 3.5rem;
   margin-bottom: 60px;
   font-weight: 700;
+  letter-spacing: 1px;
 }
 
 .product-grid {
@@ -178,9 +182,15 @@ body {
 }
 
 .product-info h3 {
-  font-size: 1.8rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
   margin-bottom: 15px;
-  color: #c90076; /* Dark pink */
+  color: #9d174d; /* Softer, richer pink */
+  background: linear-gradient(90deg, #be185d, #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
 }
 
 .product-info p {
@@ -215,7 +225,7 @@ body {
 }
 
 .cta-button {
-  background: var(--color-rosier-pink);
+  background: linear-gradient(135deg, #ec4899, #be185d);
   color: white;
   border: none;
   padding: 16px 32px;
@@ -223,12 +233,13 @@ body {
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
 }
 
 .cta-button:hover {
-  background: #be185d;
-  transform: scale(1.05);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
 }
 
 /* --- CHATBOT WIDGET --- */
@@ -278,9 +289,12 @@ body {
   right: 0;
   width: 350px;
   height: 500px;
-  background: var(--color-white);
+  background: rgba(255, 255, 255, 0.85); /* Glassmorphism */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -295,7 +309,7 @@ body {
 }
 
 .chatbot-header {
-  background: var(--color-light-pink);
+  background: rgba(253, 242, 248, 0.6);
   padding: 16px 20px;
   display: flex;
   justify-content: space-between;
@@ -328,7 +342,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: #fafafa;
+  background: rgba(250, 250, 250, 0.5); /* Semi-transparent */
 }
 
 /* Hide scrollbar */
@@ -399,7 +413,8 @@ body {
 
 .chatbot-input-area {
   padding: 16px;
-  background: var(--color-white);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(4px);
   border-top: 1px solid rgba(0,0,0,0.05);
   display: flex;
   gap: 10px;

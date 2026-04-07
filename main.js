@@ -1,66 +1,61 @@
 import './style.css';
 import { initChatbot } from './chatbot.js';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 // Init Chatbot
 initChatbot();
 
-// Intersection Observer for Scroll Animations
 document.addEventListener("DOMContentLoaded", () => {
   const root = document.documentElement;
   
-  // 1. Logic Fade in Text (Chữ mờ dần khi cuộn tới)
-  const fadeElements = document.querySelectorAll('.fade-text');
-
-  const appearOptions = {
-    threshold: 0.15,
-    rootMargin: "0px 0px -50px 0px" // Bắt đầu khi element chiếm một phần của viewport
-  };
-
-  const appearOnScroll = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('in-view');
-        // Cho qua 1 lần (lazy loading), ngừng theo dõi element đó
-        observer.unobserve(entry.target);
-      }
+  // 1. Logic Hiện chữ Cinematic (GSAP Text Reveal)
+  gsap.utils.toArray('.fade-text').forEach((el) => {
+    gsap.from(el, {
+      scrollTrigger: {
+        trigger: el,
+        start: "top 85%",
+        toggleActions: "play none none reverse"
+      },
+      y: 40,
+      opacity: 0,
+      duration: 1,
+      ease: "power3.out"
     });
-  }, appearOptions);
-
-  fadeElements.forEach(el => {
-    appearOnScroll.observe(el);
   });
 
-  // 2. Logic Background Color Scroll (Từ Xám u tối -> Hồng trong trẻo)
-  const transitionSection = document.getElementById('transition-section');
-  const productsSection = document.getElementById('products-section');
-
-  const colorOptions = {
-    // Ngưỡng 0.3 nghĩalà 30% element lộ ra
-    threshold: 0.3
-  };
-
-  const bgScrollObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        // Cuộn hướng xuống các phần có màu sáng
-        if (entry.target.id === 'transition-section' || entry.target.id === 'products-section') {
-           root.style.setProperty('--bg-current', 'var(--color-light-pink)');
-           root.style.setProperty('--text-current', 'var(--color-text-dark)');
-        }
-      } else {
-        // Nếu thoát khỏi khung này (cụ thể là ngược về Hero)
-        if (entry.target.id === 'transition-section' && entry.boundingClientRect.y > 0) {
-           root.style.setProperty('--bg-current', 'var(--color-grey-dark)');
-           root.style.setProperty('--text-current', 'var(--color-text-light)');
+  // 2. Logic Parallax hình ảnh (Image Scroll Effect)
+  gsap.utils.toArray('.product-img-wrapper img').forEach((img) => {
+    gsap.fromTo(img, 
+      { y: -30, scale: 1.15 },
+      { 
+        y: 30, 
+        scale: 1, 
+        ease: "none",
+        scrollTrigger: {
+          trigger: img.parentElement,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true
         }
       }
-    });
-  }, colorOptions);
+    );
+  });
 
-  if (transitionSection) {
-    bgScrollObserver.observe(transitionSection);
-  }
-  if (productsSection) {
-    bgScrollObserver.observe(productsSection);
-  }
+  // 3. Logic chuyển màu nền (Transition-section -> Products)
+  ScrollTrigger.create({
+    trigger: '#transition-section',
+    start: "top 60%", // Khi transition section đi vào vùng xem
+    onEnter: () => {
+      root.style.setProperty('--bg-current', 'var(--color-light-pink)');
+      root.style.setProperty('--text-current', 'var(--color-text-dark)');
+    },
+    onLeaveBack: () => {
+      // Khi quay ngược màn hình về phần Hero Banner ban đầu
+      root.style.setProperty('--bg-current', 'var(--color-grey-dark)');
+      root.style.setProperty('--text-current', 'var(--color-text-light)');
+    }
+  });
 });
