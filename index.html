@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BST Thanh Tân - Rosier Fresh Tea & Coffee</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <!-- App Container used for color transition -->
+    <div id="app">
+      
+      <!-- HERO SECTION -->
+      <section class="hero panel">
+        <div class="hero-image-container">
+          <img src="/image/banner-kv-ngang.png" alt="Nhấp ngụm tinh hoa, mở trạng thái mới" class="hero-image" />
+        </div>
+        <div class="hero-overlay">
+          <img src="/logo/rosier-logo-logotype-pink.svg" alt="Rosier logo" class="hero-logo" />
+        </div>
+      </section>
+
+      <!-- STORY TRANSITION SECTION (Xám -> Hồng trong trẻo) -->
+      <section class="story panel" id="transition-section">
+        <div class="story-content">
+          <p class="fade-text">
+            Đã đến lúc rũ bỏ những gì cũ kỹ...
+          </p>
+          <p class="fade-text delay-1">
+            Nhẹ ở phần nhìn, nhưng lại đủ đô ở phần trải nghiệm.
+          </p>
+          <p class="fade-text delay-2 bold-text">
+            Để nhường chỗ cho một sắc thái mới sắp được đánh thức<br/>ngay tại vườn hồng Rosier.
+          </p>
+        </div>
+      </section>
+
+      <!-- PRODUCTS SECTION -->
+      <section class="products panel" id="products-section">
+        <h2 class="section-title fade-text">Hai Sắc Thái Thanh Tân</h2>
+        <div class="product-grid">
+          
+          <div class="product-card fade-text delay-1">
+            <div class="product-img-wrapper">
+              <img src="/image/laptop-tra-le-hoa-anh-dao.jpg" alt="Trà Lê Hoa Anh Đào" />
+            </div>
+            <div class="product-info">
+              <h3>Trà Lê Hoa Anh Đào 🍐🌸</h3>
+              <p>Vị lê ngọt thanh quyện cùng hương hoa trong trẻo trên nền trà xanh nhài êm ái. Điểm xuyết hạt nổ củ năng giòn bùi.</p>
+            </div>
+          </div>
+
+          <div class="product-card fade-text delay-2">
+            <div class="product-img-wrapper">
+              <img src="/image/tay-cam-tra-hong-dao.jpg" alt="Trà Hồng Đào" />
+            </div>
+            <div class="product-info">
+              <h3>Trà Hồng Đào 🍑🌸</h3>
+              <p>Sắc đào hồng thơm ngọt hòa nhịp cùng trà xanh nhài thanh mát. Hậu vị tươi mới kết hợp cùng hạt nổ củ năng giòn tan, vui miệng.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- FOOTER / STORE LOCATOR -->
+      <footer class="footer panel fade-text">
+        <div class="footer-content">
+          <img src="/logo/rosier-logo-emblem-pink.svg" alt="Emblem" class="footer-emblem" />
+          <p><strong>Rosier Fresh Tea & Coffee - Inspired by nature</strong></p>
+          <p>Chuỗi trà và cà phê đóng lon lớn nhất Việt Nam 26+ cơ sở</p>
+          <p>📞 Hotline phản ánh dịch vụ: 0762.060.888</p>
+          <div class="cta-wrapper">
+            <button class="cta-button" onclick="window.open('https://xanhsmngon.onelink.me/14WJ/vp7zs9g0', '_blank')">Đặt Ngay XanhSMNgon</button>
+            <button class="cta-button" onclick="window.open('https://shopeefood.vn/thuong-hieu/rosier-tea-coffee', '_blank')">Đặt Ngay ShopeeFood</button>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- CHATBOT WIDGET -->
+    <div id="chatbot-container">
+      <button id="chatbot-toggle" aria-label="Mở Chat Barista Tâm Lý" class="pulse-animation">
+        <img src="/logo/rosier-logo-emblem-pink.svg" alt="Chat" />
+      </button>
+
+      <div id="chatbot-window" class="hidden">
+        <div class="chatbot-header">
+          <img src="/logo/rosier-logo-logotype-pink.svg" alt="Rosier" class="chat-header-logo" />
+          <span class="barista-title">Barista Ảo</span>
+          <button id="chatbot-close">✕</button>
+        </div>
+        
+        <div id="chatbot-messages">
+          <div class="message bot-message">Chào bạn, hôm nay tinh thần thế nào? Nếu đang buồn chán với deadline, cứ nhắm mắt để mình lo cho bạn một món uống thật thanh mát nhé! 🌸</div>
+        </div>
+
+        <div class="chatbot-input-area">
+          <input type="text" id="chatbot-input" placeholder="Thực sự rất mỏi mệt..." autocomplete="off"/>
+          <button id="chatbot-send">Gửi</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
