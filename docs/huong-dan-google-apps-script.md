@@ -1,21 +1,19 @@
 # Hướng dẫn tạo Google Apps Script (Webhook Backend) cho Chatbot Thanh Tân
 
-> **Mục đích:** Nhận dữ liệu Lead và Đơn hàng chi tiết từ chatbot trên Landing Page, ghi vào Google Sheets, và tự động gửi email báo cho quản lý khi phát hiện khách chốt đơn ("hot").
+> **Mục đích:** Nhận dữ liệu Lead và toàn bộ chi tiết Đơn hàng đa dạng từ chatbot trên Landing Page, ghi vào Google Sheets, và tự động gửi email báo cho quản lý khi khách "hot"/chốt mua.
 
 ## Bước 1: Setup Google Sheets chuẩn cấu trúc
 
 1. Truy cập [Google Sheets](https://docs.google.com/spreadsheets) và tạo một Bảng tính trống MỚI.
-2. Tại Dòng đầu tiên (Row 1), tạo các tiêu đề cột đúng theo thứ tự từ trái sang phải như sau. (Bạn tạo đúng 13 cột này nhé):
+2. Tại Dòng đầu tiên (Row 1), tạo các tiêu đề cột đúng theo thứ tự từ trái sang phải như sau. (Bạn tạo đúng 10 cột này nhé):
 
 | Cột | Tiêu đề | Cột | Tiêu đề |
 |-----|---------|-----|---------|
-| A | Thời gian | H | Mức độ |
-| B | Tên | I | Số lượng |
-| C | SĐT | J | Giao hàng |
-| D | Nguồn | K | Đường |
-| E | Session ID| L | Đá |
-| F | Lịch sử Chat| M | Topping |
-| G | Quan tâm | | |
+| A | Thời gian | F | Lịch sử Chat |
+| B | Tên | G | Quan tâm |
+| C | SĐT | H | Mức độ |
+| D | Nguồn | I | Chi Tiết Đơn Hàng |
+| E | Session ID| J | Thời Gian Giao |
 
 ## Bước 2: Viết mã nguồn Google Apps Script (Backend)
 
@@ -37,12 +35,9 @@ function doPost(e) {
     const intentLevel = data.intent_level || "";
     const sessionId = data.sessionId || "";
     
-    // Gán biến thông tin chốt đơn (Mô-đun mới)
-    const quantity = data.quantity || "";
+    // Gán biến thông tin chốt đơn gom chung (Xử lý được n món)
+    const orderDetails = data.order_details || "";
     const deliveryTime = data.delivery_time || "";
-    const sugar = data.sugar || "";
-    const ice = data.ice || "";
-    const topping = data.topping || "";
     
     const source = "Landing Page Thanh Tân";
     const chatHistory = ""; 
@@ -65,33 +60,27 @@ function doPost(e) {
         // CẬP NHẬT (Update Record)
         const currentRow = values[rowIndex - 1];
         
-        sheet.getRange(rowIndex, 2).setValue(name || currentRow[1]);         // Tên (Cột B)
-        sheet.getRange(rowIndex, 3).setValue(phone || currentRow[2]);        // SĐT (Cột C)
-        sheet.getRange(rowIndex, 7).setValue(interest || currentRow[6]);     // Quan tâm (Cột G)
-        sheet.getRange(rowIndex, 8).setValue(intentLevel || currentRow[7]);  // Mức độ (Cột H)
+        sheet.getRange(rowIndex, 2).setValue(name || currentRow[1]);           // Tên (Cột B)
+        sheet.getRange(rowIndex, 3).setValue(phone || currentRow[2]);          // SĐT (Cột C)
+        sheet.getRange(rowIndex, 7).setValue(interest || currentRow[6]);       // Quan tâm (Cột G)
+        sheet.getRange(rowIndex, 8).setValue(intentLevel || currentRow[7]);    // Mức độ (Cột H)
         
-        // Cập nhật thông số đơn hàng
-        sheet.getRange(rowIndex, 9).setValue(quantity || currentRow[8]);       // Số lượng (Cột I)
-        sheet.getRange(rowIndex, 10).setValue(deliveryTime || currentRow[9]);  // Giao hàng (Cột J)
-        sheet.getRange(rowIndex, 11).setValue(sugar || currentRow[10]);        // Đường (Cột K)
-        sheet.getRange(rowIndex, 12).setValue(ice || currentRow[11]);          // Đá (Cột L)
-        sheet.getRange(rowIndex, 13).setValue(topping || currentRow[12]);      // Topping (Cột M)
+        // Cập nhật thông số đơn hàng (Chuyển dạng văn bản gom gộp của Bot)
+        sheet.getRange(rowIndex, 9).setValue(orderDetails || currentRow[8]);   // Chi tiết Đơn hàng (Cột I)
+        sheet.getRange(rowIndex, 10).setValue(deliveryTime || currentRow[9]);  // Thời gian mong muốn (Cột J)
     } else {
-        // TẠO MỚI (Append Row) - Phải đúng 13 trường
+        // TẠO MỚI (Append Row) - Phải đúng 10 trường
         sheet.appendRow([
-            timestamp,     // A
-            name,          // B
-            phone,         // C
-            source,        // D
-            sessionId,     // E
-            chatHistory,   // F
-            interest,      // G
-            intentLevel,   // H
-            quantity,      // I
-            deliveryTime,  // J
-            sugar,         // K
-            ice,           // L
-            topping        // M
+            timestamp,       // A
+            name,            // B
+            phone,           // C
+            source,          // D
+            sessionId,       // E
+            chatHistory,     // F
+            interest,        // G
+            intentLevel,     // H
+            orderDetails,    // I
+            deliveryTime     // J
         ]);
     }
     
@@ -100,22 +89,19 @@ function doPost(e) {
     // ============================================
     if (intentLevel.toLowerCase() === "hot") {
         // TODO: Đổi email bên dưới thành Email của Sales/Quản lý
-        const adminEmail = "email-cua-ban@gmail.com"; 
+        const adminEmail = "tuandung.bk@gmail.com"; 
         const subject = "🔥 CÓ ĐƠN HÀNG MỚI TỪ CHATBOT - CẦN SOẠN ĐƠN!";
         
         const body = `CÓ ĐƠN HÀNG "HOT" TỪ CHATBOT!\n\n` + 
                      `THÔNG TIN KHÁCH HÀNG:\n` +
                      `- Tên: ${name}\n` +
                      `- SĐT: ${phone}\n\n` +
-                     `CHI TIẾT ĐƠN HÀNG:\n` +
-                     `- Món quan tâm: ${interest}\n` +
-                     `- Số lượng: ${quantity}\n` +
-                     `- Mức Đường: ${sugar}\n` +
-                     `- Mức Đá: ${ice}\n` +
-                     `- Topping: ${topping}\n` +
-                     `- Thời gian nhận hàng: ${deliveryTime}\n\n` +
+                     `GIỎ HÀNG CHI TIẾT:\n` +
+                     `${orderDetails}\n\n` +
+                     `- Thời gian nhận hàng: ${deliveryTime}\n` +
+                     `- Món quan tâm chung: ${interest}\n\n` +
                      `Thời gian ghi nhận: ${timestamp}\n\n` +
-                     `Vui lòng gọi khách hàng này để xác nhận và pha chế ngay.`;
+                     `Vui lòng gọi khách hàng này để xác nhận lại và tiến hành pha chế.`;
                      
         MailApp.sendEmail(adminEmail, subject, body);
     }
@@ -135,7 +121,7 @@ function doPost(e) {
 1. Ở góc trên cùng bên phải cửa sổ mã, nhấp vào nút **Triển khai (Deploy)** màu xanh dương -> Chọn **Lần triển khai mới (New deployment)**.
 2. Ở popup hiện ra, click vào hình răng cưa (Chọn loại) -> Chọn **Ứng dụng web (Web app)**.
 3. Trong biểu mẫu thiết lập:
-   - **Mô tả:** Code Chatbot v2 Chốt Đơn
+   - **Mô tả:** Code Chatbot Tổng Hợp Nhiều Món
    - **Thực thi dưới dạng:** `Me` (Bạn).
    - **Người có quyền truy cập:** `Bất kỳ ai` (**Anyone**). *(Bắt buộc)*.
 4. Bấm **Triển khai**.
@@ -144,7 +130,7 @@ function doPost(e) {
 
 ## Checklist nâng cấp
 
-- [ ] Sheet đã có tổng cộng 13 cột.
-- [ ] Code.gs mới đã được Dán và Save lại.
-- [ ] Đã Deploy thành URL mới (hoặc update phiên bản cũ) và bỏ vào `chatbot.js`.
-- [ ] Khách mồi chốt đơn sẽ kích hoạt gửi mail chi tiết công thức đường, đá, topping đến tận hòm thư của bạn!
+- [ ] Sheet thu gọn lại còn đúng 10 cột, với Cột I là "Chi Tiết Đơn Hàng".
+- [ ] Code.gs mới đã được copy và lưu.
+- [ ] Email giờ dùng biến `order_details` có khả năng tổng hợp mọi cấu hình (kể cả khi khách gọi 10 món).
+- [ ] Deploy version mới, và copy paste cập nhật lại link Webhook nếu link cũ bị đổi.
