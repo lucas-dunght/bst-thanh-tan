@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyk7oD911DYK3x4mrIkPD1zj9TIfLfXAzgB4TNWq2kJw7SxUjQni3kQ6n1TdHcM1bNNqA/exec"; // TODO: Đổi thành Webhook GAS thực tế
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw41GDowHNXPNr0QD_J0KH6aUiCVOwMrDAEhf1tOf-9q2Xoi62BCfIEA-gOZ0z8eEAehg/exec"; // TODO: Đổi thành Webhook GAS thực tế
 
 const openai = new OpenAI({
   baseURL: "https://9router.vuhai.io.vn/v1",
