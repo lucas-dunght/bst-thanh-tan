@@ -1,5 +1,7 @@
 import OpenAI from "openai";
 
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyk7oD911DYK3x4mrIkPD1zj9TIfLfXAzgB4TNWq2kJw7SxUjQni3kQ6n1TdHcM1bNNqA/exec"; // TODO: Đổi thành Webhook GAS thực tế
+
 const openai = new OpenAI({
   baseURL: "https://9router.vuhai.io.vn/v1",
   apiKey: "sk-4bd27113b7dc78d1-lh6jld-f4f9c69f",
@@ -10,7 +12,21 @@ const systemPrompt = `Bạn là một Barista tâm lý của Rosier Fresh Tea & 
 Nhiệm vụ: Lắng nghe tâm trạng khách hàng (đặc biệt là dân văn phòng mệt mỏi) và tư vấn họ hai loại trà thanh mát trong BST Thanh Tân:
 1. Trà Lê Hoa Anh Đào (vị lê ngọt thanh, hương hoa trong trẻo trên nền trà xanh nhài, điểm hạt nổ củ năng).
 2. Trà Hồng Đào (đào chín thơm ngọt, trà xanh nhài thanh dịu, hạt nổ củ năng giòn tan).
-Giọng văn: Trưởng thành, dịu dàng, thấu hiểu, mang lại cảm giác chữa lành. Ngắn gọn (dưới 50 từ). Sử dụng emoji trái cây (🍐, 🍑) và hoa (🌸, 🌿) linh hoạt.`;
+Giọng văn: Trưởng thành, dịu dàng, thấu hiểu, mang lại cảm giác chữa lành. Ngắn gọn (dưới 50 từ). Sử dụng emoji trái cây (🍐, 🍑) và hoa (🌸, 🌿) linh hoạt.
+
+QUAN TRỌNG - KỸ NĂNG BÁN HÀNG NGẦM (Chuyên gia tư vấn):
+Bạn là một chuyên gia bán hàng bậc thầy — bán mà khách không biết mình đang được bán. Tuyệt đối KHÔNG bao giờ có giọng mời chào, ép mua, hay quảng cáo lộ liễu.
+Chiến thuật của bạn:
+1. ĐỒNG CẢM TRƯỚC: Luôn lắng nghe và thấu hiểu tâm trạng khách trước. Hỏi han nhẹ nhàng: "Hôm nay bạn có vẻ mệt nhỉ?", "Tuần này bận không?"
+2. KỂ CHUYỆN, KHÔNG BÁN: Thay vì nói "Trà Lê Hoa Anh Đào rất ngon", hãy kể: "Có một bạn văn phòng ghé tuần trước, thử xong bảo thấy nhẹ hẳn đầu ấy 🍐". Để khách tự tò mò.
+3. GỢI NHU CẦU TỰ NHIÊN: Dẫn dắt để khách tự nhận ra họ cần thử, không phải mình ép. VD: "Thời tiết nóng thế này, mình toàn uống gì mát mát cho dễ chịu á".
+4. XIN THÔNG TIN KHI ĐÃ TẠO ĐƯỢC THIỆN CẢM: Chỉ khi khách đã thể hiện sự quan tâm rõ ràng (hỏi giá, hỏi địa chỉ, muốn thử), hãy tự nhiên hỏi tên và SĐT theo kiểu bạn bè: "Để mình nhắn bạn khi có khuyến mãi nha, cho mình xin tên với SĐT nhé 🌸"
+
+ĐÍNH KÈM THẺ LEAD:
+- LUÔN LUÔN đính kèm 1 thẻ JSON ở cuối câu trả lời khi trích xuất được dữ liệu lead hoặc cập nhật đánh giá intent_level.
+Định dạng thẻ:
+||LEAD_DATA: {"name": "...", "phone": "...", "interest": "...", "intent_level": "hot/warm/cold"}||
+Lưu ý: Các trường chưa biết thì để trống "".`;
 
 export function initChatbot() {
   const toggleBtn = document.getElementById('chatbot-toggle');
@@ -19,6 +35,13 @@ export function initChatbot() {
   const messageContainer = document.getElementById('chatbot-messages');
   const inputField = document.getElementById('chatbot-input');
   const sendBtn = document.getElementById('chatbot-send');
+
+  // Khởi tạo hoặc lấy Session ID
+  let sessionId = sessionStorage.getItem('rosier_chat_session');
+  if (!sessionId) {
+    sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    sessionStorage.setItem('rosier_chat_session', sessionId);
+  }
 
   // Trạng thái hội thoại
   let conversationHistory = [
@@ -66,8 +89,34 @@ export function initChatbot() {
       const reply = response.choices[0].message.content;
       removeElement(typingId);
       
-      appendMessage(reply, 'bot');
-      conversationHistory.push({ role: "assistant", content: reply });
+      // Bóc tách LEAD_DATA ẩn
+      const leadDataRegex = /\|\|LEAD_DATA:\s*(\{.*?\})\s*\|\|/g;
+      let match;
+      let extractedData = null;
+
+      while ((match = leadDataRegex.exec(reply)) !== null) {
+        try {
+          extractedData = JSON.parse(match[1]);
+        } catch (e) {
+          console.error("Lỗi parse LEAD_DATA:", e);
+        }
+      }
+
+      // Ẩn sạch tag trên UI
+      let cleanReply = reply.replace(/\|\|LEAD_DATA:\s*(\{.*?\})\s*\|\|/g, '').trim();
+      appendMessage(cleanReply, 'bot');
+      conversationHistory.push({ role: "assistant", content: reply }); // Push vào AI logic bản gốc (có kèm tag)
+      
+      // Bắn JSON lên Webhook
+      if (extractedData) {
+        extractedData.sessionId = sessionId;
+        fetch(GOOGLE_SHEET_URL, {
+          method: 'POST',
+          mode: 'no-cors', // Sử dụng no-cors để chặn trình duyệt kiểm tra Access-Control, phù hợp với Google Apps Script
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(extractedData)
+        }).catch(err => console.error("Lỗi đồng bộ Webhook:", err));
+      }
       
     } catch (error) {
       console.error("Lỗi kết nối OpenAI API:", error);
