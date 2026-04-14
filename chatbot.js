@@ -115,6 +115,19 @@ export function initChatbot() {
       // Bắn JSON lên Webhook
       if (extractedData) {
         extractedData.sessionId = sessionId;
+        
+        // Tổng hợp lịch sử chat (bỏ qua system prompt và ẩn tag JSON)
+        const formatChat = conversationHistory
+          .filter(msg => msg.role !== 'system')
+          .map(msg => {
+            const roleName = msg.role === 'user' ? 'Khách' : 'Bot';
+            const cleanContent = msg.content.replace(/\|\|LEAD_DATA:\s*(\{.*?\})\s*\|\|/g, '').trim();
+            return `${roleName}: ${cleanContent}`;
+          })
+          .join('\n');
+          
+        extractedData.chatHistory = formatChat;
+
         fetch(GOOGLE_SHEET_URL, {
           method: 'POST',
           mode: 'no-cors', // Sử dụng no-cors để chặn trình duyệt kiểm tra Access-Control, phù hợp với Google Apps Script

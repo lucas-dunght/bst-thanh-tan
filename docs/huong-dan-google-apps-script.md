@@ -40,7 +40,7 @@ function doPost(e) {
     const deliveryTime = data.delivery_time || "";
     
     const source = "Landing Page Thanh Tân";
-    const chatHistory = ""; 
+    const chatHistory = data.chatHistory || ""; 
     const timestamp = new Date();
     
     // LOGIC CẬP NHẬT GỘP: Kiểm tra dựa theo `Session ID` (Cột E = index 4 trong mảng 0)
@@ -62,6 +62,7 @@ function doPost(e) {
         
         sheet.getRange(rowIndex, 2).setValue(name || currentRow[1]);           // Tên (Cột B)
         sheet.getRange(rowIndex, 3).setValue(phone || currentRow[2]);          // SĐT (Cột C)
+        sheet.getRange(rowIndex, 6).setValue(chatHistory || currentRow[5]);    // Lịch sử (Cột F)
         sheet.getRange(rowIndex, 7).setValue(interest || currentRow[6]);       // Quan tâm (Cột G)
         sheet.getRange(rowIndex, 8).setValue(intentLevel || currentRow[7]);    // Mức độ (Cột H)
         
